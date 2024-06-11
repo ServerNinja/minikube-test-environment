@@ -1,0 +1,56 @@
+---
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: Logging
+metadata:
+  name: logging
+  namespace: logging-operator
+spec:
+  fluentd: {}
+  fluentbit: {}
+  controlNamespace: logging-operator
+---
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: ClusterOutput
+metadata:
+  name: loki-output
+  namespace: logging-operator
+spec:
+ loki:
+   drop_single_key: true
+   line_format: json
+   tenant: "fake"
+   extra_labels:
+     cluster_id: minikube
+   labels:
+     namespace: $.kubernetes.namespace_name
+     node_name: $.kubernetes.host
+     container: $.kubernetes.container_name
+     component: $.kubernetes.labels.component
+   url: http://loki.loki.svc.cluster.local:3100
+   buffer:
+     timekey: 1m
+     timekey_wait: 30s
+     timekey_use_utc: true
+---
+apiVersion: logging.banzaicloud.io/v1beta1
+kind: ClusterFlow
+metadata:
+  name: loki-flow
+  namespace: logging-operator
+spec:
+  filters:
+#    # Step 1. if log object is a valid json string, JSON.parse and override it with object
+#    # else we just keep log object on the even as a string
+#    - record_transformer:
+#        enable_ruby: true
+#        records:
+#          - log: "$${ (begin; JSON.parse(record['message']); rescue; (record['message'] || ''); end) }"
+#          - kubernetes: "$${ (begin; record['kubernetes'].slice('pod_name','container_image', 'namespace_name', 'host', 'container_name', 'labels'); rescue ; record['kubernetes']; end) }"
+#    # Step Final. To clean up the final object, we select the fields we want to keep
+#    - record_modifier:
+#        whitelist_keys: log,stream,time,kubernetes
+  match:
+    - select:
+        namespaces: []
+  globalOutputRefs:
+    - loki-output

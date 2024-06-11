@@ -1,0 +1,58 @@
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: Grafana
+metadata:
+  name: grafana
+  namespace: monitoring 
+  labels:
+    dashboards: "grafana"
+spec:
+  config:
+    security:
+      admin_user: admin 
+      admin_password: password
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasource:
+    name: prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus-operated.monitoring.svc.cluster.local:9090
+    isDefault: true
+    jsonData:
+      'tlsSkipVerify': true
+      'timeInterval': "5s"
+---
+apiVersion: grafana.integreatly.org/v1beta1
+kind: GrafanaDatasource
+metadata:
+  name: loki
+  namespace: monitoring
+spec:
+  instanceSelector:
+    matchLabels:
+      dashboards: "grafana"
+  datasource:
+    name: Loki
+    type: loki
+    access: proxy
+    url: http://loki-gateway.loki.svc.cluster.local
+    jsonData:
+      tlsSkipVerify: true
+      maxLines: 1000
+      httpHeaderName1: "X-Scope-OrgID"
+      derivedFields:
+        - datasourceUid: Prometheus
+          matcherRegex: ".*traceID=([a-zA-Z0-9]+).*"
+          name: TraceID
+          url: "$${__value.raw}" 
+    secureJsonData:
+      httpHeaderValue1: "fake"
