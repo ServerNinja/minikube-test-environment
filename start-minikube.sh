@@ -17,9 +17,9 @@ export NETWORK="$(jq -r '.minikube.network' "$BASEDIR/config.json")"
 show_help() {
   echo "Usage: $0 [OPTIONS]"
   echo "Options:"
-  echo "  -m <value>   Enable/disable monitoring components (true/false)"
-  echo "  -d <value>   Enable/disable MySQL installation (true/false)"
-  echo "  -h           Show this help message"
+  echo "  -m    Enable monitoring components"
+  echo "  -d    Enable MySQL installation"
+  echo "  -h    Show this help message"
 }
 
 start_minikube() {
