@@ -2,14 +2,16 @@
 
 ## Getting started
 
+**NOTE**: See `config.json` to configure options
+
 Start script that builds the minikube environment
 ```
 ./start-minikube.sh -h
 Usage: ./start-minikube.sh [OPTIONS]
 Options:
-  -m <value>   Enable/disable monitoring components (true/false)
-  -d <value>   Enable/disable MySQL installation (true/false)
-  -h           Show this help message
+  -m    Enable monitoring components
+  -d    Enable MySQL installation
+  -h    Show this help message
 ```
 
 Destroying the minikube environment
@@ -19,7 +21,7 @@ Destroying the minikube environment
 
 ## Accessing Grafana
 
-NOTE: Only works when using the -m switch with `start-minikube.sh`
+**NOTE**: Only works when using the -m switch with `start-minikube.sh`
 
 ```
 kubectl port-forward svc/grafana-service -n monitoring 3000:3000
