@@ -20,7 +20,7 @@ spec:
    line_format: json
    tenant: "fake"
    extra_labels:
-     cluster_id: minikube
+     cluster_id: default 
    labels:
      namespace: $.kubernetes.namespace_name
      node_name: $.kubernetes.host

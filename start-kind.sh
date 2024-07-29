@@ -6,13 +6,7 @@ BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$BASEDIR/.lib/common.sh"
 
 # Checking for required command line utilities
-check_required_utils minikube kubectl helm jq
-
-# Pulling config ffrom config.json
-export MEMORY="$(jq -r '.minikube.memory' "$BASEDIR/config.json")"
-export CPUS="$(jq -r '.minikube.cpus' "$BASEDIR/config.json")"
-export DRIVER="$(jq -r '.minikube.driver' "$BASEDIR/config.json")"
-export NETWORK="$(jq -r '.minikube.network' "$BASEDIR/config.json")"
+check_required_utils kind kubectl helm jq
 
 show_help() {
   echo "Usage: $0 [OPTIONS]"
@@ -22,38 +16,34 @@ show_help() {
   echo "  -h    Show this help message"
 }
 
-start_minikube() {
-    if [ -z "$NETWORK_OPTION" ]; then
-      NETWORK_OPTION="--network $NETWORK"
-    fi
-
-    CMD="minikube start --driver $DRIVER --cpus $CPUS --memory $MEMORY $NETWORK_OPTION"
-    echo "Starting minikuke with the following command:"
+start_kind() {
+    CMD="kind create cluster"
+    echo "Starting kind with the following command:"
     echo -e "$CMD"
 
     $CMD
 }
 
-is_minikube_running() {
-    minikube status >/dev/null 2>&1
+is_kind_running() {
+    kind get clusters 2> /dev/null | grep kind
     if [ $? -eq 0 ]; then
-        log_info "Minikube is already running"
+        log_info "Kind cluster is already running"
         return 0
     else
-        log_warning "Minikube is not running"
+        log_warning "Kind cluster is not running"
         return 1
     fi
 }
 
 run() {
-    is_minikube_running
+    is_kind_running
     
     if [ $? -ne 0 ]; then
-      start_minikube
+      start_kind
     fi
     
     if [ ! $? -eq 0 ]; then
-      log_error "Failed to properly start minikube"
+      log_error "Failed to properly start kind"
       exit 1
     fi
     

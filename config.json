@@ -2,7 +2,10 @@
   "minikube": {
     "memory": 6144,
     "cpus": 4,
-    "driver": "qemu2",
-    "network": "socket_vmnet"
+    "driver": "podman",
+    "network": "builtin"
+  },
+  "kind": {
+
   }
 }
