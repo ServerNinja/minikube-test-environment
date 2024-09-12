@@ -17,6 +17,7 @@ log_error() {
 }
 
 package_config() {
+  export INSTALL_ARGOCD="$(jq -r '.packages.argocd' "$BASEDIR/config.json")"
   export INSTALL_VAULT="$(jq -r '.packages.vault' "$BASEDIR/config.json")"
   export INSTALL_MYSQL="$(jq -r '.packages.mysql' "$BASEDIR/config.json")"
   export INSTALL_PROMETHEUS="$(jq -r '.packages.prometheus' "$BASEDIR/config.json")"
@@ -27,22 +28,23 @@ package_config() {
 
 install_packages() {
   # Docker Pull Secrets
-  $BASEDIR/docker-pull-secrets/configure-docker-pull-secrets.sh
+  $BASEDIR/apps/docker-pull-secrets/configure-docker-pull-secrets.sh
 
   # Reflector
-  $BASEDIR/reflector/configure-reflector.sh
+  $BASEDIR/apps/reflector/configure-reflector.sh
 
   # Bank-Vaults
-  [ "$INSTALL_VAULT" = "true" ] && $BASEDIR/bank-vaults/configure-bank-vaults.sh
+  [ "$INSTALL_VAULT" = "true" ] && $BASEDIR/apps/bank-vaults/configure-bank-vaults.sh
+  [ "$INSTALL_ARGOCD" = "true" ] && $BASEDIR/apps/argocd/configure-argocd.sh
 
   # Monitoring Packages
-  [ "$INSTALL_PROMETHEUS" = "true" ] && $BASEDIR/prometheus/configure-prometheus.sh
-  [ "$INSTALL_LOKI" = "true" ] && $BASEDIR/loki/configure-loki.sh
-  [ "$INSTALL_LOGGING_OPERATOR" = "true" ] && $BASEDIR/logging-operator/configure-logging-operator.sh
-  [ "$INSTALL_GRAFANA" = "true" ] && $BASEDIR/grafana/configure-grafana.sh
+  [ "$INSTALL_PROMETHEUS" = "true" ] && $BASEDIR/apps/prometheus/configure-prometheus.sh
+  [ "$INSTALL_LOKI" = "true" ] && $BASEDIR/apps/loki/configure-loki.sh
+  [ "$INSTALL_LOGGING_OPERATOR" = "true" ] && $BASEDIR/apps/logging-operator/configure-logging-operator.sh
+  [ "$INSTALL_GRAFANA" = "true" ] && $BASEDIR/apps/grafana/configure-grafana.sh
 
   # MySQL
-  [ "$INSTALL_MYSQL" = "true" ] && $BASEDIR/bitnami-mysql/configure-mysql.sh
+  [ "$INSTALL_MYSQL" = "true" ] && $BASEDIR/apps/bitnami-mysql/configure-mysql.sh
 }
 
 minikube_config() {

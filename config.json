@@ -8,10 +8,11 @@
   },
   "kind": {},
   "packages": {
+    "argocd": true,
     "vault": false,
     "prometheus": false,
     "loki": false,
-    "grafana": true,
+    "grafana": false,
     "logging_operator": false,
     "mysql": false
   } 

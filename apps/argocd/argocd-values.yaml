@@ -1,0 +1,57 @@
+# REF: https://github.com/argoproj/argo-helm/blob/main/charts/argo-cd/README.md
+#
+# Optional CRD installation for those without Helm hooks
+installCRDs: true
+
+redis:
+  enabled: true
+  name: redis
+
+  image:
+    repository: redis
+    tag: 6.2.6-alpine
+    imagePullPolicy: IfNotPresent
+
+  containerPort: 6379
+  servicePort: 6379
+
+redis-ha:
+  enabled: false
+
+controller:
+  replicas: 1
+
+  name: application-controller
+  image:
+    repository: quay.io/argoproj/argocd  # for ARM+x86 charts
+
+  ## Enable if you would like to grant rights to ArgoCD to deploy to the local Kubernetes cluster.
+  clusterAdminAccess:
+    enabled: true
+
+server:
+  name: server
+
+  replicas: 1
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 5
+    targetCPUUtilizationPercentage: 50
+    targetMemoryUtilizationPercentage: 50
+
+  image:
+    repository: quay.io/argoproj/argocd  # for ARM+x86 charts
+
+repoServer:
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+
+applicationSet:
+  # -- Enable Application Set controller
+  enabled: false
+
+  # -- Application Set controller name string
+  name: applicationset-controller
