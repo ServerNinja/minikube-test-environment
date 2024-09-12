@@ -16,6 +16,43 @@ log_error() {
   echo -e "$RED[ERROR]: $@ $RESET"
 }
 
+package_config() {
+  export INSTALL_VAULT="$(jq -r '.packages.vault' "$BASEDIR/config.json")"
+  export INSTALL_MYSQL="$(jq -r '.packages.mysql' "$BASEDIR/config.json")"
+  export INSTALL_PROMETHEUS="$(jq -r '.packages.prometheus' "$BASEDIR/config.json")"
+  export INSTALL_LOKI="$(jq -r '.packages.loki' "$BASEDIR/config.json")"
+  export INSTALL_GRAFANA="$(jq -r '.packages.grafana' "$BASEDIR/config.json")"
+  export INSTALL_LOGGING_OPERATOR="$(jq -r '.packages.logging_operator' "$BASEDIR/config.json")"
+}
+
+install_packages() {
+  # Docker Pull Secrets
+  $BASEDIR/docker-pull-secrets/configure-docker-pull-secrets.sh
+
+  # Reflector
+  $BASEDIR/reflector/configure-reflector.sh
+
+  # Bank-Vaults
+  [ "$INSTALL_VAULT" = "true" ] && $BASEDIR/bank-vaults/configure-bank-vaults.sh
+
+  # Monitoring Packages
+  [ "$INSTALL_PROMETHEUS" = "true" ] && $BASEDIR/prometheus/configure-prometheus.sh
+  [ "$INSTALL_LOKI" = "true" ] && $BASEDIR/loki/configure-loki.sh
+  [ "$INSTALL_LOGGING_OPERATOR" = "true" ] && $BASEDIR/logging-operator/configure-logging-operator.sh
+  [ "$INSTALL_GRAFANA" = "true" ] && $BASEDIR/grafana/configure-grafana.sh
+
+  # MySQL
+  [ "$INSTALL_MYSQL" = "true" ] && $BASEDIR/bitnami-mysql/configure-mysql.sh
+}
+
+minikube_config() {
+  # Pulling config ffrom config.json
+  export MEMORY="$(jq -r '.minikube.memory' "$BASEDIR/config.json")"
+  export CPUS="$(jq -r '.minikube.cpus' "$BASEDIR/config.json")"
+  export DRIVER="$(jq -r '.minikube.driver' "$BASEDIR/config.json")"
+  export NETWORK="$(jq -r '.minikube.network' "$BASEDIR/config.json")"
+}
+
 install_helm_chart() {
     # Check if the helm release exists
     if ! helm list -n $NAMESPACE | grep -q $HELM_RELEASE; then

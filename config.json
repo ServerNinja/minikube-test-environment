@@ -1,11 +1,18 @@
 {
+  "provider": "kind",
   "minikube": {
     "memory": 6144,
     "cpus": 4,
     "driver": "podman",
     "network": "builtin"
   },
-  "kind": {
-
-  }
+  "kind": {},
+  "packages": {
+    "vault": false,
+    "prometheus": false,
+    "loki": false,
+    "grafana": true,
+    "logging_operator": false,
+    "mysql": false
+  } 
 }
